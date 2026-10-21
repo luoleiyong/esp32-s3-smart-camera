@@ -21,6 +21,7 @@ on-device AVI recording, photo upload and OTA updates.
 
 ## Table of Contents
 
+- [Quick Start](#quick-start)
 - [Features](#features)
 - [Hardware Requirements](#hardware-requirements)
 - [Wiring](#wiring)
@@ -36,6 +37,21 @@ on-device AVI recording, photo upload and OTA updates.
 - [FAQ and Limitations](#faq-and-limitations)
 - [Project Structure](#project-structure)
 - [License](#license)
+
+---
+
+## Quick Start
+
+```bash
+git clone https://github.com/luoleiyong/esp32-s3-smart-camera.git
+```
+
+1. Open `ESP32S/ESP32S.ino` in Arduino IDE.
+2. Apply the [board settings](#board-settings) (16 MB flash, OPI PSRAM, OTA-capable partition).
+3. Install the [libraries](#software-setup).
+4. Flash at 921600 baud and open the serial monitor at 115200.
+5. On first boot, join `ESP32-S3-CAM-Setup` / `12345678` and open `http://192.168.4.1`
+   to provision WiFi (see [First Boot and WiFi Provisioning](#first-boot-and-wifi-provisioning)).
 
 ---
 
