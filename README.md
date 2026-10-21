@@ -47,7 +47,7 @@ on-device AVI recording, photo upload and OTA updates.
 | --- | --- |
 | Live preview | OV2640 to 128×96 preview area on the TFT, ~15 fps (66 ms interval) |
 | Photo capture | JPEG, up to UXGA 1600×1200, stored on microSD |
-| Resolutions | QVGA / VGA / SVGA / XGA / SXGA / UXGA |
+| Resolutions | QVGA / VGA / SVGA / XGA / SXGA / UXGA (TFT menu omits VGA) |
 | Quality | JPEG quality 4–15 (web), presets Q5/Q8/Q10/Q15/Q20 (TFT) |
 | Digital zoom | 1× / 2× / 3× / 4×, applied to both preview and saved photos |
 | Manual exposure | Auto or manual; shutter `aec_value` 0–1200, gain 0–30 |
@@ -213,7 +213,7 @@ on-device AVI recording, photo upload and OTA updates.
    noise-sensitive. Use short, equal-length leads; avoid breadboard jumpers longer than ~10 cm.
 4. **Power**: use a stable 5 V / 1 A supply. Camera start-up and SD writes draw current
    spikes; a weak USB port causes brown-out resets and "Camera FAIL" on the serial log.
-5. **Pin usage**: the firmware uses GPIO 0, 1, 3–22, 38–40, 45–48. Avoid reusing these
+5. **Pin usage**: the firmware uses GPIO 0, 1, 3–21, 38–40, 45–48. Avoid reusing these
    for other peripherals.
 6. **Strapping pins**: IO0 (button) and IO46 (joystick SW) affect boot mode. Do not hold
    them low during reset/power-up.
@@ -267,6 +267,10 @@ Open `ESP32S/ESP32S.ino`, then select **ESP32S3 Dev Module** and set:
 
 The project ships `ESP32S/build_opt.h` containing `-O2`, which overrides the core's
 default `-Os` for better runtime performance.
+
+`USB CDC On Boot` is **Disabled** so `Serial` is routed to the USB-UART bridge. If your
+board only exposes the native USB port (no USB-UART chip), set it to **Enabled** to see
+the serial log.
 
 ---
 
