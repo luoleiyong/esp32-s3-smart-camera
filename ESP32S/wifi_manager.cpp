@@ -181,6 +181,7 @@ bool wifiConnect(const char *ssid, const char *password, int timeoutMs) {
  */
 void wifiStartAP() {
     WiFi.mode(WIFI_AP);
+    WiFi.setSleep(false);  // 低延迟：AP 模式下同样关闭省电
     WiFi.softAP(AP_SSID, AP_PASS);
     wifiState = WiFiState::AP_MODE;
     apMode = true;

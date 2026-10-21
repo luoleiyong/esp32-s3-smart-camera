@@ -13,6 +13,10 @@
 #include <esp_camera.h>
 #include <SD_MMC.h>
 
+// 自拍倒计时：必须在 pauseForCapture() 之前调用（此时预览任务仍在刷新画面）
+// shotDelaySec=0 时无任何延迟直接返回；否则逐秒在顶部标题栏显示剩余秒数
+void photoSelfTimer();
+
 // Capture photo and save to SD card (generates timestamp filename if path is NULL)
 bool photoCapture(const char *customPath = nullptr);
 

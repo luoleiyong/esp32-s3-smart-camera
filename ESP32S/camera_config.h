@@ -43,8 +43,15 @@
 #define TFT_SCLK          47
 #define TFT_BL            45
 
+// TFT SPI 时钟：实测 27MHz 在本模块上出现整屏白光（数据发不进屏），
+// 回退到 20MHz（已验证稳定）。若换用短排线/质量更好的模块，可再往上试 27MHz
+#define TFT_SPI_FREQ_HZ   20000000
+
 // Physical button pin (IO0 on most ESP32-S3 boards)
 #define BUTTON_PIN        0
+
+// Onboard RGB LED (WS2812) pin
+#define LED_RGB_PIN       48
 
 // Joystick analog and digital pins
 #define JOYSTICK_VRX      14
@@ -62,10 +69,14 @@
 #define DAYLIGHT_OFFSET_SEC 0
 
 // Camera frame sizes and quality settings
-#define PREVIEW_FRAME_SIZE FRAMESIZE_240X240
+#define PREVIEW_FRAME_SIZE FRAMESIZE_128X128
 #define PREVIEW_QUALITY   12
 #define PHOTO_FRAME_SIZE  FRAMESIZE_UXGA
 #define PHOTO_QUALITY     10
+
+// Preview refresh interval (ms): higher = lower frame rate, less heat,
+// longer sensor exposure time (brighter image in low light)
+#define PREVIEW_INTERVAL_MS 66
 
 // WiFi connection defaults
 #define DEFAULT_WIFI_SSID ""
@@ -77,12 +88,5 @@
 
 // mDNS/Bonjour hostname
 #define MDNS_HOSTNAME     "esp32s3cam"
-
-// Motion detection parameters
-#define MOTION_THRESHOLD  15
-#define MOTION_MIN_FRAMES 3
-
-// Timelapse minimum interval (milliseconds)
-#define TIMELAPSE_MIN_INTERVAL_MS 5000
 
 #endif

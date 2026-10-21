@@ -32,4 +32,7 @@ bool joystickLeftEdge();
 bool joystickRightEdge();
 bool joystickPressedEdge();
 
+// 摇杆按下已持续时长（毫秒）；未按住时返回 0（用于长按删除等手势判定）
+unsigned long joystickPressedHoldMs();
+
 #endif

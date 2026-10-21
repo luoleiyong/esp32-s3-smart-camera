@@ -3,7 +3,7 @@
  * 
  * Handles persistent storage of device settings using ESP32 Preferences API.
  * Provides load/save operations for WiFi credentials, camera parameters,
- * motion detection, and timelapse settings.
+ * and image enhancement (zoom/exposure/anti-shake/scene) settings.
  */
 
 #include "config_manager.h"
@@ -34,10 +34,23 @@ void configLoad() {
     cfg.photoQuality = prefs.getInt("quality", PHOTO_QUALITY);
     cfg.hmirror = prefs.getBool("hmirror", false);
     cfg.vflip = prefs.getBool("vflip", false);
-    cfg.motionThreshold = prefs.getInt("motionTh", MOTION_THRESHOLD);
-    cfg.motionEnabled = prefs.getBool("motionEn", false);
-    cfg.timelapseInterval = prefs.getULong("tlInterval", TIMELAPSE_MIN_INTERVAL_MS);
-    cfg.timelapseEnabled = prefs.getBool("tlEnabled", false);
+    cfg.zoomLevel = prefs.getInt("zoom", 1);
+    cfg.exposureMode = prefs.getInt("expMode", 0);
+    cfg.shutterValue = prefs.getInt("shutter", 300);
+    cfg.gainValue = prefs.getInt("gain", 0);
+    cfg.antiShake = prefs.getBool("antishake", false);
+    cfg.sceneMode = prefs.getInt("scene", 0);
+    cfg.shotDelaySec = prefs.getInt("shotDelay", 0);
+    cfg.watermark = prefs.getBool("watermark", false);
+
+    // 高级功能（默认关闭，保证升级后行为不变）
+    cfg.previewJpeg = prefs.getBool("prevJpeg", false);
+    cfg.hwZoom = prefs.getBool("hwZoom", false);
+    cfg.uploadAuto = prefs.getBool("upAuto", false);
+    cfg.videoFps = prefs.getInt("vidFps", 10);
+    String upUrl = prefs.getString("upUrl", "");
+    strncpy(cfg.uploadUrl, upUrl.c_str(), sizeof(cfg.uploadUrl) - 1);
+    cfg.uploadUrl[sizeof(cfg.uploadUrl) - 1] = '\0';
 
     String ssid = prefs.getString("wifiSSID", DEFAULT_WIFI_SSID);
     String pass = prefs.getString("wifiPass", DEFAULT_WIFI_PASS);
@@ -60,10 +73,19 @@ void configSave() {
     prefs.putInt("quality", cfg.photoQuality);
     prefs.putBool("hmirror", cfg.hmirror);
     prefs.putBool("vflip", cfg.vflip);
-    prefs.putInt("motionTh", cfg.motionThreshold);
-    prefs.putBool("motionEn", cfg.motionEnabled);
-    prefs.putULong("tlInterval", cfg.timelapseInterval);
-    prefs.putBool("tlEnabled", cfg.timelapseEnabled);
+    prefs.putInt("zoom", cfg.zoomLevel);
+    prefs.putInt("expMode", cfg.exposureMode);
+    prefs.putInt("shutter", cfg.shutterValue);
+    prefs.putInt("gain", cfg.gainValue);
+    prefs.putBool("antishake", cfg.antiShake);
+    prefs.putInt("scene", cfg.sceneMode);
+    prefs.putInt("shotDelay", cfg.shotDelaySec);
+    prefs.putBool("watermark", cfg.watermark);
+    prefs.putBool("prevJpeg", cfg.previewJpeg);
+    prefs.putBool("hwZoom", cfg.hwZoom);
+    prefs.putBool("upAuto", cfg.uploadAuto);
+    prefs.putInt("vidFps", cfg.videoFps);
+    prefs.putString("upUrl", String(cfg.uploadUrl));
     prefs.putString("wifiSSID", String(cfg.wifiSSID));
     prefs.putString("wifiPass", String(cfg.wifiPassword));
 }
@@ -112,14 +134,39 @@ void configSetFlip(bool hmirror, bool vflip) {
     cfg.vflip = vflip;
 }
 
-// Motion detection functions
-void configSetMotion(bool enabled, int threshold) {
-    cfg.motionEnabled = enabled;
-    cfg.motionThreshold = threshold;
+// 图像增强配置：数字变焦 / 曝光 / 手持防抖 / 场景优化
+void configSetImage(int zoomLevel, int exposureMode, int shutterValue,
+                    int gainValue, bool antiShake, int sceneMode) {
+    cfg.zoomLevel = zoomLevel;
+    cfg.exposureMode = exposureMode;
+    cfg.shutterValue = shutterValue;
+    cfg.gainValue = gainValue;
+    cfg.antiShake = antiShake;
+    cfg.sceneMode = sceneMode;
 }
 
-// Timelapse functions
-void configSetTimelapse(bool enabled, unsigned long intervalMs) {
-    cfg.timelapseEnabled = enabled;
-    cfg.timelapseInterval = intervalMs;
+// 自拍倒计时（秒）：仅接受 0/2/5/10，其余就近取值
+void configSetShotDelay(int sec) {
+    if (sec <= 1) cfg.shotDelaySec = 0;
+    else if (sec <= 3) cfg.shotDelaySec = 2;
+    else if (sec <= 7) cfg.shotDelaySec = 5;
+    else cfg.shotDelaySec = 10;
+}
+
+// 时间水印开关
+void configSetWatermark(bool on) {
+    cfg.watermark = on;
+}
+
+// 高级功能配置：JPEG 预览 / 硬件窗口变焦 / 照片上传 / 机内录像帧率
+void configSetAdvanced(bool previewJpeg, bool hwZoom,
+                       const char *uploadUrl, bool uploadAuto, int videoFps) {
+    cfg.previewJpeg = previewJpeg;
+    cfg.hwZoom = hwZoom;
+    cfg.uploadAuto = uploadAuto;
+    cfg.videoFps = videoFps;
+    if (uploadUrl) {
+        strncpy(cfg.uploadUrl, uploadUrl, sizeof(cfg.uploadUrl) - 1);
+        cfg.uploadUrl[sizeof(cfg.uploadUrl) - 1] = '\0';
+    }
 }

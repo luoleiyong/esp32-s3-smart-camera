@@ -32,6 +32,9 @@ static unsigned long leftHoldTime = 0;
 static unsigned long rightHoldTime = 0;
 static unsigned long pressedHoldTime = 0;
 
+// 按住起始时刻（用于长按判定）；0 表示当前未按住
+static unsigned long pressStartTime = 0;
+
 // Timing thresholds for repeat behavior
 static unsigned long lastActionTime = 0;
 static const unsigned long HOLD_THRESHOLD = 500;
@@ -68,6 +71,13 @@ void joystickRead() {
     joystickVRX = analogRead(JOYSTICK_VRX);
     joystickVRY = analogRead(JOYSTICK_VRY);
     joystickSW = digitalRead(JOYSTICK_SW);
+
+    // 记录按下的持续时长（按下瞬间记起点，松开清零）
+    if (joystickSW == LOW) {
+        if (pressStartTime == 0) pressStartTime = millis();
+    } else {
+        pressStartTime = 0;
+    }
 }
 
 // Check joystick direction states against deadzone threshold
@@ -131,4 +141,10 @@ bool joystickPressedEdge() {
     bool result = edgeDetect(joystickPressed(), lastPressedState, pressedHoldTime, false);
     if (result) lastActionTime = millis();
     return result;
+}
+
+// 摇杆按下已持续时长（毫秒）；未按住时返回 0
+unsigned long joystickPressedHoldMs() {
+    if (joystickSW == LOW && pressStartTime != 0) return millis() - pressStartTime;
+    return 0;
 }
